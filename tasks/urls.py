@@ -1,11 +1,24 @@
+# tasks/urls.py
+
 from django.urls import path
-from . import views
-app_name = 'tasks'
+from .views import (
+    register_view,
+    login_view,
+    account_details,
+    logout_view,
+    home_view,
+    change_password_view,
+    delete_account_view
+)
+
+app_name = 'tasks'  # Define el namespace correctamente
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('create', views.create, name='create'),
-    path('detail/<int:task_id>', views.detail, name='detail'),
-    path('edit/<int:task_id>', views.edit, name='edit'),
-    path('delete/<int:task_id>', views.delete, name='delete'),
+    path('', home_view, name='index'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
+    path('account/', account_details, name='account_details'),
+    path('logout/', logout_view, name='logout'),
+    path('change-password/', change_password_view, name='change_password'),
+    path('delete/', delete_account_view, name='delete_account'),
 ]

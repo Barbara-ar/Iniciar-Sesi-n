@@ -1,16 +1,13 @@
-{% extends "base.html" %}
+{% extends 'tasks/base.html' %}
 
-{% block main %}
-<h1>Página de Detalles de la Tarea</h1>
-<p>
-  <strong>Título:</strong>
-  {{task.title}}
-</p>
+{% block title %}Detalles de la Cuenta{% endblock %}
 
-<p>
-  <strong>Contenido:</strong>
-  {{task.content}}
-</p>
-<a href="{% url 'tasks:index' %}">Volver</a> |
-<a href="{% url 'tasks:edit' task.id %}">Editar</a>
+{% block content %}
+<h1>Página de detalles de información de miembros</h1>
+<p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+<p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+<p><strong>Edad:</strong> {{ user.edad }}</p>
+<a href="{% url 'edit_account' %}">Editar</a> |
+<a href="{% url 'change_password' %}">Cambiar contraseña</a> |
+<a href="{% url 'delete_account' %}">Eliminar cuenta</a>
 {% endblock %}

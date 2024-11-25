@@ -1,65 +1,60 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
-from .models import Task
-from .forms import TaskCreationForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import UserRegisterForm, UserLoginForm
+from .models import CustomUser
 
+def home_view(request):
+    """Vista para la página principal."""
+    return render(request, 'tasks/index.html')
 
-def index(request):
-    tasks = Task.objects.all()
-    params = {
-        'tasks': tasks,
-    }
-    return render(request, 'tasks/index.html', params)
-
-
-def create(request):
-    if (request.method == 'POST'):
-        title = request.POST['title']
-        content = request.POST['content']
-        task = Task(title=title, content=content)
-        task.save()
-        return redirect('tasks:index')
+def register_view(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('account_details')
     else:
-        params = {
-            'form': TaskCreationForm(),
-        }
-        return render(request, 'tasks/create.html', params)
+        form = UserRegisterForm()
+    return render(request, 'tasks/create.html', {'form': form})
 
-
-def detail(request, task_id):
-    task = Task.objects.get(id=task_id)
-    params = {
-        'task': task,
-    }
-    return render(request, 'tasks/detail.html', params)
-
-
-def edit(request, task_id):
-    task = Task.objects.get(id=task_id)
-    if (request.method == 'POST'):
-        task.title = request.POST['title']
-        task.content = request.POST['content']
-        task.save()
-        return redirect('tasks:detail', task_id)
+def login_view(request):
+    if request.method == 'POST':
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect('account_details')
     else:
-        form = TaskCreationForm(initial={
-            'title': task.title,
-            'content': task.content,
-        })
-        params = {
-            'task': task,
-            'form': form,
-        }
-        return render(request, 'tasks/edit.html', params)
+        form = UserLoginForm()
+    return render(request, 'tasks/login.html', {'form': form})
 
+@login_required
+def account_details(request):
+    return render(request, 'tasks/detail.html', {'user': request.user})
 
-def delete(request, task_id):
-    task = Task.objects.get(id=task_id)
-    if (request.method == 'POST'):
-        task.delete()
-        return redirect('tasks:index')
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect('account_details')
     else:
-        params = {
-            'task': task,
-        }
-        return render(request, 'tasks/delete.html', params)
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'tasks/change_password.html', {'form': form})
+
+@login_required
+def delete_account_view(request):
+    if request.method == 'POST':
+        request.user.delete()
+        return redirect('home')
+    return render(request, 'tasks/delete.html', {'user': request.user})

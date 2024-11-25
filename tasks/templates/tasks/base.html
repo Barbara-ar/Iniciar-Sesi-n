@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %} <!-- Agrega esta línea al inicio -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Aplicación{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'tasks:index' %}">Lista de tareas</a></li>
+                    <li><a href="{% url 'tasks:account_details' %}">Información del miembro</a></li>
+                    <li><a href="{% url 'tasks:logout' %}">Cerrar sesión</a></li>
+                {% else %}
+                    <li><a href="{% url 'tasks:login' %}">Acceso a la cuenta</a></li>
+                    <li><a href="{% url 'tasks:register' %}">Registro de cuenta</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
